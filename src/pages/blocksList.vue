@@ -2,7 +2,7 @@
     <div class="container">
         <div class="search-box" v-show="!showList">
             <el-input v-model="blockNumber"></el-input>
-            <span class="detail-search-btn"></span>
+            <span class="detail-search-btn" @click="query()"></span>
         </div>
         <div class="content" v-show="showList">
             <el-header>
@@ -224,6 +224,7 @@
                 this.currentTimes = 0
                 this.showList = true
                 this.blockData.length = 0
+                this.blockNumber = ''
                 this.getBlockList(this.lastBlockNumber)
             },
             /**
