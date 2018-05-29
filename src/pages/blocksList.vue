@@ -17,11 +17,11 @@
             </el-header>
             <div class="body-table">
                 <el-table height="100%"
-                        :data="blockData"
-                        style="color:#8490c5;font-size: 16px;background:#221d44;text-align:center;"
-                        :header-cell-style="headerCellStyle"
-                        :row-style="rowStyle"
-                        :cell-style="{'border-bottom':'none'}"
+                          :data="blockData"
+                          style="color:#8490c5;font-size: 16px;background:#221d44;text-align:center;"
+                          :header-cell-style="headerCellStyle"
+                          :row-style="rowStyle"
+                          :cell-style="{'border-bottom':'none'}"
                 >
                     <el-table-column
                             prop="number"
@@ -90,21 +90,10 @@
                     <el-button size="mini" @click="backList">返回列表</el-button>
                 </div>
                 <div class="tx-list">
-                    <el-row
-                            :gutter="20"
-                            v-for="(value,key) in blockData[0]"
-                            :key="key">
-                        <el-col :span="6" class="key">
-                            <div>
-                                {{ key }}
-                            </div>
-                        </el-col>
-                        <el-col :span="18" class="value">
-                            <div>
-                                {{ value }}
-                            </div>
-                        </el-col>
-                    </el-row>
+                    <div class="row" v-for="(value,key) in blockData[0]" :key="key">
+                        <div class="key">{{ key }}</div>
+                        <div class="value">{{ value }}</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -341,7 +330,7 @@
                     }
                 }
             }
-            .body-table{
+            .body-table {
                 height: calc(100% - 120px);
                 min-height: 200px;
                 overflow-y: auto;
@@ -373,13 +362,6 @@
                         }
                     }
                 }
-                /*.back {*/
-                    /*height: 50px;*/
-                    /*line-height: 50px;*/
-                    /*a {*/
-                        /*color: #f00;*/
-                    /*}*/
-                /*}*/
                 .tx-list {
                     max-height: calc(100% - 60px);
                     min-height: 300px;
@@ -388,21 +370,30 @@
                     box-shadow: 0px 18px 43px 0px rgba(25, 21, 46, 0.07);
                     border-radius: 2px;
                     border: solid 1px #322d5d;
-                    padding: 0 20px;
-                    .el-row {
-                        .key, .value {
-                            line-height: 38px;
+                    .row {
+                        line-height: 38px;
+                        position: relative;
+                        &:after {
+                            content: '';
+                            display: table;
+                            clear: both;
                         }
                         .key {
+                            position: absolute;
+                            top: 0;
+                            bottom: 0;
+                            width: 200px;
                             font-size: 16px;
                             color: #cec8ff;
-                            padding-right: 40px!important;
                             text-align: right;
+                            padding-right: 40px;
                             background-color: rgba(58, 52, 106, 0.1);
                             box-shadow: 1px 0px 0px 0px rgba(57, 53, 102, 0.35);
                         }
                         .value {
-                            padding-left: 40px!important;
+                            float: right;
+                            width: calc(100% - 280px);
+                            padding-left: 40px;
                             font-size: 14px;
                             color: #8490c5;
                         }
