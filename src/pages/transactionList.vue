@@ -4,7 +4,7 @@
             <el-header>
                 <el-row>
                     <el-col :span="8" :offset="6">
-                        <el-input v-model="searcheValue" placeholder="请输入 区块号 / 区块hash" @keyup.enter.native="query"></el-input>
+                        <el-input v-model="searcheValue" placeholder="请输入 交易hash / 发送方 / 接收方" @keyup.enter.native="query"></el-input>
                     </el-col>
                     <el-col :span="3">
                         <el-button @click="query">搜索</el-button>
@@ -17,76 +17,59 @@
             <div class="table" v-show="showList">
                 <div class="body-table">
                     <el-table height="100%"
-                            :data="blockData"
+                            :data="transactionsList"
                             style="color:#8490c5;font-size: 16px;background:#221d44;text-align:center;"
                             :header-cell-style="headerCellStyle"
                             :row-style="rowStyle"
                             :cell-style="{'border-bottom':'none'}"
                     >
                         <el-table-column
-                                prop="height"
-                                label="区块高度">
+                                prop="txHash"
+                                width="400"
+                                label="交易hash">
                             <template slot-scope="scope">
                                 <a style="color: #B9B4E8"
-                                :title="scope.row.height"
+                                :title="scope.row.txHash"
                                 href="javascript:void(0)"
                                 @click.prevent="shwoDetail(scope.row)">
-                                    {{ scope.row.height }}
+                                    {{ scope.row.txHash }}
                                 </a>
                             </template>
                         </el-table-column>
                         <el-table-column
-                                prop="hash"
-                                width="650"
-                                label="区块hash">
-                            <template slot-scope="scope">
-                                <a style="color: #B9B4E8"
-                                :title="scope.row.hash"
-                                href="javascript:void(0)"
-                                @click.prevent="shwoDetail(scope.row)">
-                                    {{ scope.row.hash }}
-                                </a>
-                            </template>
+                                prop="txFrom"
+                                label="发送方"
+                                min-width="350px">
                         </el-table-column>
                         <el-table-column
-                                prop="timeStamp"
+                                prop="txTo"
+                                label="接收方"
+                                min-width="350px">
+                        </el-table-column>
+                        <el-table-column
+                                prop="txValue"
+                                label="金额"
+                                :formatter="valueFilter">
+                        </el-table-column>
+                        <el-table-column
+                                prop="time"
                                 label="时间"
-                                width="200">
-                        </el-table-column>
-                        <!--<el-table-column-->
-                        <!--prop="txn"-->
-                        <!--label="txn">-->
-                        <!--</el-table-column>-->
-                        <el-table-column
-                                prop="unclesReward"
-                                label="叔块">
+                                width="180">
                         </el-table-column>
                         <el-table-column
-                                prop="coinbase"
-                                label="矿工"
-                                min-width="300px">
+                                prop="blockNum"
+                                label="区块号">
                         </el-table-column>
-                        <el-table-column
-                                prop="gasUsed"
-                                label="交易佣金">
-                        </el-table-column>
-                        <el-table-column
-                                prop="gasLimit"
-                                label="佣金上限">
-                        </el-table-column>
-                        <!--<el-table-column-->
-                        <!--prop="Reward"-->
-                        <!--label="奖励">-->
-                        <!--</el-table-column>-->
                     </el-table>
                 </div>
                 <div class="tc">
                     <el-pagination
+                            class="tc"
                             background
                             @size-change="sizeChange"
                             @current-change="currentChange"
                             :current-page="currentPage"
-                            :page-size="times"
+                            :page-size="pageSize"
                             layout="total, sizes, prev, pager, next, jumper"
                             :total="total">
                     </el-pagination>
@@ -112,11 +95,11 @@
         name: "blocks-list",
         data() {
             return {
-                title:'区块信息',
+                title:'交易明细',
                 language: '', // 语言
-                blockData: [], // 表格数据
+                transactionsList: [], // 表格数据
                 // currentTimes: 0, //
-                times: 20, // 每页显示数据条数
+                pageSize: 20, // 每页显示数据条数
                 searcheValue: '', //搜索的区块值
                 showList: true,
                 currentPage: 1, // 当前页
@@ -129,26 +112,26 @@
             /**
              * 时间格式化
              */
-            /*dateFormate(row) {
-                let date = new Date(row.timeStamp * 1000)//时间戳为10位需*1000，时间戳为13位的话不需乘1000
-                let Y = date.getFullYear() + '.';
-                let M = this.fillZero(date.getMonth() + 1) + '.';
-                let D = this.fillZero(date.getDate()) + ' ';
-                let h = this.fillZero(date.getHours()) + ':';
-                let m = this.fillZero(date.getMinutes()) + ':';
-                let s = this.fillZero(date.getSeconds());
-                return Y + M + D + h + m + s
-            },            
-            fillZero(time) {
-                time = time < 10 ? "0" + time : time;
-                return time;
-            },*/
+            // dateFormate(row) {
+            //     let date = new Date(row.timeStamp * 1000)//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+            //     let Y = date.getFullYear() + '.';
+            //     let M = this.fillZero(date.getMonth() + 1) + '.';
+            //     let D = this.fillZero(date.getDate()) + ' ';
+            //     let h = this.fillZero(date.getHours()) + ':';
+            //     let m = this.fillZero(date.getMinutes()) + ':';
+            //     let s = this.fillZero(date.getSeconds());
+            //     return Y + M + D + h + m + s
+            // },            
+            // fillZero(time) {
+            //     time = time < 10 ? "0" + time : time;
+            //     return time;
+            // },
             /**
              * 查询
              */
             query() {
                 if(isNaN(this.searcheValue)) {
-                    this.$message.error("不正确的区块号或hash")
+                    this.$message.error("不正确的交易hash或账户地址")
                     return
                 }
                 if(this.searcheValue.length === 66){
@@ -158,10 +141,16 @@
                 }       
             },
             shwoDetail(row) {
-                this.title = '区块信息'
-                this.showList = false
-                this.detailList = row
-                this.selectedPage = this.currentPage
+                this.title = '交易详情'
+                this.$web3.eth.getTransaction(row.txHash)
+                    .then((data) => {
+                        this.showList = false
+                        this.selectedPage = this.currentPage
+                        this.detailList = data
+                        // delete data.datasourcecode
+                        // this.transactionsData = data
+                        // this.showSwitch = 'list'
+                    })
             },
             /**
              * 返回表格
@@ -176,7 +165,7 @@
              * pageSize 改变时会触发
              */
             sizeChange(pageSize) {
-                this.times = pageSize
+                this.pageSize = pageSize
                 this.getData()
             },
             /**
@@ -186,19 +175,19 @@
                 this.currentPage = index
                 this.getData()
             },
-            getData(hash, blockNum) {
-                this.$axios.post('/api/requestBlock.php', {                    
-                    "pageSize": this.times,
+            getData(hash, addr) {
+                this.$axios.post('/api/requestTx.php', {
+                    "addr": addr || '',
+                    "txHash": hash || '',
+                    "pageSize": this.pageSize,
                     "pageNum": this.currentPage,
-                    "hash":hash || null,
-                    "blockNum":blockNum || null
-                }).then( res => {
-                    if(res.data.code == 200) {
-                        if(res.data.result.length) {
+                }).then((res) => {
+                    if (res.data.code == 200) {
+                        if (res.data.result.length) {
                             this.total = Number(res.data.dataCount)
-                            this.blockData = []
-                            this.blockData = this.blockData.concat(res.data.result)
-                            if(hash || blockNum) {
+                            this.transactionsList = []
+                            this.transactionsList = this.transactionsList.concat(res.data.result)
+                            if(hash) {
                                 this.detailList = res.data.result[0]
                                 this.showList = false   
                                 this.selectedPage = this.currentPage      
@@ -207,10 +196,12 @@
                             this.$message.error("没有相关数据")
                         }
                     }
-                }, err => {
-                    console.log(err)
-                    this.$message.error(err)
+                }).catch((error) => {
+                    this.$message.error(String(error))
                 })
+            },
+            valueFilter(row) {
+                return this.$web3.utils.fromWei(row.txValue, 'ether');
             },
             headerCellStyle({row, rowIndex}) {
                 return 'background:#342C67;border-bottom:0;font-size: 20px;color: #d3ceff;height:70px;text-align:center;'

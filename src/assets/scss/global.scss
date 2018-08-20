@@ -23,6 +23,30 @@
     top: 20px;
     left: 90px;
   }
+
+  .tab {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translate(-50%);
+    font-size: 20px;
+    color: #746FA5;
+    text-align: center;
+    z-index: 1000;
+    span {
+      display: inline-block;
+      line-height: 58px;
+      width: 200px;
+      cursor: pointer;
+      box-sizing: border-box;
+      &.active {
+        background: rgba(25, 21, 46, 0.7);
+        border: 2px solid #433E71;
+        border-bottom: 2px solid #191338; 
+        color: #D3CEF5;
+      }
+    }
+  }
 }
 
 .full-loading {
